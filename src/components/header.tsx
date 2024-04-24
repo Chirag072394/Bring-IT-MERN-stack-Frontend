@@ -3,8 +3,8 @@ import { FaSearch,FaShoppingBag,FaSignInAlt, FaSignOutAlt, FaUser} from 'react-i
 import {useState} from 'react'
 
 const user={
-    _id:"fffd",
-    role: "admin"
+    _id:"fsadf",
+    role: ""
 }
 
 const Header = () => {
