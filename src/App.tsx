@@ -1,16 +1,22 @@
-import { BrowserRouter as Router,Routes,Route } from "react-router-dom"
-import {lazy,Suspense} from 'react'
-import Loader from "./components/loader"
-import Header from "./components/header"
-import {Toaster} from 'react-hot-toast';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { lazy, Suspense, useEffect } from "react";
+import Loader from "./components/loader";
+import Header from "./components/header";
+import { Toaster } from "react-hot-toast";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "./firebase";
+import { userExist, userNotExist } from "./redux/reducer/userReducer";
+import { useDispatch, useSelector } from "react-redux";
+import { getUser } from "./redux/api/userAPI";
+import { UserReducerInitialState } from "./types/reducer-types";
 
-const Home = lazy(()=>import("./pages/home"))
-const Search = lazy(()=>import("./pages/search"))
-const Cart =  lazy(()=>import("./pages/cart"))
-const Shipping = lazy(()=>import("./pages/shipping"))
-const Login =lazy(()=>import("./pages/login"));
-const Orders =lazy(()=> import("./pages/orders"));
-const OrderDetails =lazy(()=> import("./pages/order-details"));
+const Home = lazy(() => import("./pages/home"));
+const Search = lazy(() => import("./pages/search"));
+const Cart = lazy(() => import("./pages/cart"));
+const Shipping = lazy(() => import("./pages/shipping"));
+const Login = lazy(() => import("./pages/login"));
+const Orders = lazy(() => import("./pages/orders"));
+const OrderDetails = lazy(() => import("./pages/order-details"));
 
 //admin routes import
 const Dashboard = lazy(() => import("./pages/admin/dashboard"));
@@ -32,32 +38,45 @@ const TransactionManagement = lazy(
 );
 
 const App = () => {
-  return <Router>
-    {/* Header */}
-    <Header></Header>
-    <Suspense fallback={<Loader/>}>
-      <Routes>
-        <Route path='/' element={<Home/>}></Route>
-        <Route path='/search' element={<Search/>}></Route>
-        <Route path='/cart' element={<Cart/>}></Route>
-        
-        {/* not logged in route */}
-        <Route path='/login' element={<Login/>}></Route>
+  const { user, loading } = useSelector(
+    (state: { userReducer: UserReducerInitialState }) => state.userReducer
+  );
+  const dispatch = useDispatch();
 
+  useEffect(() => {
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const data = await getUser(user.uid);
+        dispatch(userExist(data.user));
+      } else {
+        dispatch(userNotExist());
+      }
+    });
+  }, []);
 
-        {/* Logged in user Routes */}
-        <Route>
-          <Route path='/shipping' element={<Shipping/>}></Route>
-          <Route path='/orders' element={<Orders/>}></Route>
-          <Route path='/order/:id' element={<OrderDetails/>}></Route>
-        </Route>
-
-        {/*Admin Routes */}
-        <Route
-              // element={
-              //   <ProtectedRoute isAuthenticated={true} adminRoute={true} isAdmin={true} />
-              // }
-              >
+  return loading? <Loader /> : (
+    <Router>
+      {/* Header */}
+      <Header user={user}></Header>
+      <Suspense fallback={<Loader />}>
+        <Routes>
+          <Route path="/" element={<Home />}></Route>
+          <Route path="/search" element={<Search />}></Route>
+          <Route path="/cart" element={<Cart />}></Route>
+          {/* not logged in route */}
+          <Route path="/login" element={<Login />}></Route>
+          {/* Logged in user Routes */}
+          <Route>
+            <Route path="/shipping" element={<Shipping />}></Route>
+            <Route path="/orders" element={<Orders />}></Route>
+            <Route path="/order/:id" element={<OrderDetails />}></Route>
+          </Route>
+          {/*Admin Routes */}
+          <Route
+          // element={
+          //   <ProtectedRoute isAuthenticated={true} adminRoute={true} isAdmin={true} />
+          // }
+          >
             <Route path="/admin/dashboard" element={<Dashboard />} />
             <Route path="/admin/product" element={<Products />} />
             <Route path="/admin/customer" element={<Customers />} />
@@ -76,16 +95,17 @@ const App = () => {
 
             <Route path="/admin/product/:id" element={<ProductManagement />} />
 
-            <Route path="/admin/transaction/:id" element={<TransactionManagement />} />
-          </Route>;
+            <Route
+              path="/admin/transaction/:id"
+              element={<TransactionManagement />}
+            />
+          </Route>
+          ;
+        </Routes>
+      </Suspense>
+      <Toaster position="bottom-center" />
+    </Router>
+  );
+};
 
-
-
-      </Routes>
-    </Suspense>
-    <Toaster position = "bottom-center"/>
-  </Router>
-}
-
-export default App
-
+export default App;
