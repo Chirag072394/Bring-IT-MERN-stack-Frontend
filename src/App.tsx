@@ -9,6 +9,7 @@ import { userExist, userNotExist } from "./redux/reducer/userReducer";
 import { useDispatch, useSelector } from "react-redux";
 import { getUser } from "./redux/api/userAPI";
 import { UserReducerInitialState } from "./types/reducer-types";
+import ProtectedRoute from "./components/protected-route";
 
 const Home = lazy(() => import("./pages/home"));
 const Search = lazy(() => import("./pages/search"));
@@ -54,7 +55,9 @@ const App = () => {
     });
   }, []);
 
-  return loading? <Loader /> : (
+  return loading ? (
+    <Loader />
+  ) : (
     <Router>
       {/* Header */}
       <Header user={user}></Header>
@@ -64,19 +67,25 @@ const App = () => {
           <Route path="/search" element={<Search />}></Route>
           <Route path="/cart" element={<Cart />}></Route>
           {/* not logged in route */}
-          <Route path="/login" element={<Login />}></Route>
+          <Route
+            path="/login"
+            element={
+              <ProtectedRoute isAuthenticated={user? false : true}>
+                <Login />
+              </ProtectedRoute>
+            }
+          ></Route>
           {/* Logged in user Routes */}
-          <Route>
+          <Route element={<ProtectedRoute isAuthenticated={user? true : false}/>}>
             <Route path="/shipping" element={<Shipping />}></Route>
             <Route path="/orders" element={<Orders />}></Route>
             <Route path="/order/:id" element={<OrderDetails />}></Route>
           </Route>
           {/*Admin Routes */}
           <Route
-          // element={
-          //   <ProtectedRoute isAuthenticated={true} adminRoute={true} isAdmin={true} />
-          // }
-          >
+          element={
+            <ProtectedRoute isAuthenticated={true} adminOnly={true} admin={user?.role==="admin"? true : false} />
+          }>
             <Route path="/admin/dashboard" element={<Dashboard />} />
             <Route path="/admin/product" element={<Products />} />
             <Route path="/admin/customer" element={<Customers />} />
@@ -100,7 +109,7 @@ const App = () => {
               element={<TransactionManagement />}
             />
           </Route>
-          ;
+          
         </Routes>
       </Suspense>
       <Toaster position="bottom-center" />
