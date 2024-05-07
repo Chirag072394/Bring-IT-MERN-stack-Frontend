@@ -1,7 +1,7 @@
 .product-search-page{
     padding:2rem;
     @include flex(row,flex-start,stretch,2rem);
-    min-height:calc(100% - 6.5%);
+    min-height:calc(100vh - 6.5vh);
     >aside{
         min-width: 20rem;
         box-shadow: 2px 5px 10px rgba(0,0,0,0.247);
@@ -32,9 +32,9 @@
             font-size:1.2rem;
             display: block;
         }
-        .product-product-list{
+        .search-product-list{
             @include flex(row,flex-start,flex-start);
-            flex: flex-wrap;
+            flex-wrap: wrap;
             height:calc(100% - 10rem);
             overflow-y: auto;
         }
