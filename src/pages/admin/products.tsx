@@ -1,4 +1,4 @@
-import { ReactElement, useState,useEffect } from "react";
+import { ReactElement, useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { Column } from "react-table";
@@ -9,7 +9,6 @@ import { server } from "../../redux/store";
 import toast from "react-hot-toast";
 import { CustomError } from "../../types/api-types";
 import { useSelector } from "react-redux";
-
 import { UserReducerInitialState } from "../../types/reducer-types";
 import { Skeleton } from "../../components/loader";
 
@@ -44,33 +43,33 @@ const columns: Column<DataType>[] = [
   },
 ];
 
+
+
 const Products = () => {
 
-  const {user} = useSelector((state: {userReducer:UserReducerInitialState}) => state.userReducer)
-
-  const {isLoading, isError, error, data } = useAllProductsQuery(user?._id!);
-
+  const {user} = useSelector((state:{userReducer:UserReducerInitialState})=> state.userReducer)
+ const {isLoading,isError, error ,data} = useAllProductsQuery(user?._id!)
   const [rows, setRows] = useState<DataType[]>([]);
 
-  if(isError) {
-    const err = error as CustomError;
-    toast.error(err.data.message);
-  }
+if(isError) {
+  const err =error as CustomError;
+  toast.error(err.data.message);
+}
 
-  useEffect(() => {
-    if (data)
-      setRows(
-        data.products.map((i) => ({
-          photo: <img src={`${server}/${i.photo}`}/>,
-          name: i.name,
-          price: i.price, 
-          stock: i.stock, 
-          action: <Link to={`/admin/product/${i._id}`}>Manage</Link> 
-      }))
-    );
-  }, [data])
+
+useEffect(()=>{
+  if(data) setRows(data.products.map((i)=>
+    ({
+      photo:<img src={`${server}/${i.photo}`}/>,
+      name:i.name,
+      price:i.price,
+      stock:i.stock,
+      action:<Link to ={`/admin/product/${i._id}`}>Manage</Link>
   
-
+    })
+    ));
+},[data])
+  
   const Table = TableHOC<DataType>(
     columns,
     rows,
@@ -82,7 +81,7 @@ const Products = () => {
   return (
     <div className="admin-container">
       <AdminSidebar />
-      <main>{isLoading? <Skeleton length={20}/> : Table}</main>
+      <main>{isLoading?<Skeleton/>:Table}</main>
       <Link to="/admin/product/new" className="create-product-btn">
         <FaPlus />
       </Link>

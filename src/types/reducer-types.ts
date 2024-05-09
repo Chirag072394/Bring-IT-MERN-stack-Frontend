@@ -1,18 +1,18 @@
-import {CartItem, ShippingInfo, User} from "./types"
+import { User, cartItem, shippingInfo } from "./types";
 
-export interface UserReducerInitialState {
-    user: User | null;
-    loading: boolean;
+export interface UserReducerInitialState{
+    user:User|null;
+    loading:boolean;
 }
 
 
-export interface CartReducerInitialState {
-    loading: boolean;
-    cartItems: CartItem[],
+export interface CartReducerInitialState{
+    loading:boolean;
+    cartItems:cartItem[],
     subtotal:number;
     tax:number;
     shippingCharges:number;
     discount:number;
     total:number;
-    shippingInfo:ShippingInfo;
+    shippingInfo:shippingInfo;
 }

@@ -1,15 +1,16 @@
-import { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, useState,FormEvent } from "react";
 import AdminSidebar from "../../../components/admin/AdminSidebar";
 import { useSelector } from "react-redux";
-import { useNewProductsMutation } from "../../../redux/api/productAPI";
 import { UserReducerInitialState } from "../../../types/reducer-types";
-import { responseToast } from "../../../utils/features";
+import { useNewProductMutation } from "../../../redux/api/productAPI";
+import { responeToast } from "../../../utils/features";
 import { useNavigate } from "react-router-dom";
 
 const NewProduct = () => {
-  const { user } = useSelector(
-    (state: { userReducer: UserReducerInitialState }) => state.userReducer
-  );
+
+  const  { user} = useSelector((state: { userReducer: UserReducerInitialState }) => state.userReducer);
+
+
 
   const [name, setName] = useState<string>("");
   const [category, setCategory] = useState<string>("");
@@ -17,9 +18,8 @@ const NewProduct = () => {
   const [stock, setStock] = useState<number>(1);
   const [photoPrev, setPhotoPrev] = useState<string>("");
   const [photo, setPhoto] = useState<File>();
-
-  const [newProduct] = useNewProductsMutation();
-  const navigate = useNavigate();
+  const [newProduct] =useNewProductMutation();
+  const navigate = useNavigate()
 
   const changeImageHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const file: File | undefined = e.target.files?.[0];
@@ -37,21 +37,21 @@ const NewProduct = () => {
     }
   };
 
-  const submitHandler =async (e: FormEvent<HTMLFormElement>) => {
+  const submitHandler=async (e:FormEvent<HTMLFormElement>)=>{
+
     e.preventDefault();
-    if (!name || !price || !stock || !photo || !category) return;
 
-    const formData = new FormData();
+    if(!name || !price || stock < 0 || !category ||!photo) return;
+    
+    const formData = new FormData()
+    formData.set("name",name);
+    formData.set("price",price.toString())
+    formData.set("stock",stock.toString())
+    formData.set("photo",photo)
+    formData.set("category",category)
 
-    formData.set("name", name);
-    formData.set("price", price.toString());
-    formData.set("stock", stock.toString());
-    formData.set("photo", photo);
-    formData.set("category", category);
-
-    const res = await newProduct({id:user?._id!, formData})
-
-    responseToast(res,navigate,"/admin/product")
+      const res = await newProduct({id:user?._id!,formData})
+      responeToast(res,navigate,"admin/product")
   };
 
   return (
@@ -64,7 +64,7 @@ const NewProduct = () => {
             <div>
               <label>Name</label>
               <input
-                required
+              required
                 type="text"
                 placeholder="Name"
                 value={name}
@@ -84,8 +84,8 @@ const NewProduct = () => {
             <div>
               <label>Stock</label>
               <input
-                required
                 type="number"
+                required
                 placeholder="Stock"
                 value={stock}
                 onChange={(e) => setStock(Number(e.target.value))}
@@ -95,8 +95,8 @@ const NewProduct = () => {
             <div>
               <label>Category</label>
               <input
-                required
                 type="text"
+                required
                 placeholder="eg. laptop, camera etc"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
@@ -105,7 +105,9 @@ const NewProduct = () => {
 
             <div>
               <label>Photo</label>
-              <input required type="file" onChange={changeImageHandler} />
+              <input type="file" 
+               required
+               onChange={changeImageHandler} />
             </div>
 
             {photoPrev && <img src={photoPrev} alt="New Image" />}

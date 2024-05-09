@@ -1,6 +1,5 @@
 
-
-const OrderDetails = () => {
+const OrderDetails =()=> {
   return (
     <div>
       
